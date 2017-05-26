@@ -34,24 +34,91 @@
 				console.log('Clicks = ' + countClicks);
 			}
 			
+			//Set canvas height and width to 100%
+			function resizeCanvas() {
+				var canvas = document.getElementById('canvas');
+				var ctx = canvas.getContext('2d');
+				ctx.canvas.width  = window.innerWidth;
+				ctx.canvas.height = window.innerHeight;
+			}
+			
+			//Submit Boton Event
 			function submitEvent() {
-				console.log('Total = ' + countClicks);
+				
 				var distance = [];
 				var distanceSum = 0;
 				
-				document.getElementById("response").value = countClicks;
-				
-				//Verify if is triangle or square			
+				//Verify if is triangle 		
 				if ( countClicks === 4 ){
 					if ( savedPageClicks[0][0] === savedPageClicks[3][0] 
 					|| savedPageClicks[0][1] === savedPageClicks[3][1]  ){
-						console.log('Triangle');
+						
+						var x1 = savedPageClicks[0][0];
+						var y1 = savedPageClicks[0][1];
+						
+						var x2 = savedPageClicks[1][0];
+						var y2 = savedPageClicks[1][1];
+						
+						var x3 = savedPageClicks[2][0];
+						var y3 = savedPageClicks[2][1];
+						
+						var x4 = savedPageClicks[3][0];
+						var y4 = savedPageClicks[3][1];
+						
+						var distanceA = Math.hypot(x2-x1, y2-y1);
+						var distanceB = Math.hypot(x3-x2, y3-y2);
+						var distanceC = Math.hypot(x4-x3, y4-y3);
+						
+						if( distanceB == distanceC || distanceA == distanceB || distanceC == distanceA ){
+							var triangleType = 'isosceles';
+							alert("Isosceles!");
+						} else {
+							var triangleType = 'other';
+							alert("Just another triangle ");
+						}
+						
+						var area = (distanceA * distanceB)/2;
+						var stringForEncode = [(x2, y2), (x3, y3), (x4, y4)];
+						var encodedString = btoa(stringForEncode);
+						var shapeType = 'Triangle';
+						var url = 'https://warm-thicket-98293.herokuapp.com/triangle?area=<'+area+'>&type=<'+triangleType+'>&points=<'+encodedString+'>';
+						httpGet(url);
+						
 						return false
 					}
+				//Verify if is square
 				} else if ( countClicks === 5 ){
 					if ( savedPageClicks[0][0] === savedPageClicks[4][0] 
 					|| savedPageClicks[0][1] === savedPageClicks[4][1]){
-						console.log('Square');
+						
+						var x1 = savedPageClicks[0][0];
+						var y1 = savedPageClicks[0][1];
+						
+						var x2 = savedPageClicks[1][0];
+						var y2 = savedPageClicks[1][1];
+						
+						var x3 = savedPageClicks[2][0];
+						var y3 = savedPageClicks[2][1];
+						
+						var x4 = savedPageClicks[3][0];
+						var y4 = savedPageClicks[3][1];
+						
+						var x5 = savedPageClicks[4][0];
+						var y5 = savedPageClicks[4][1];
+						
+						var distanceA = Math.hypot(x2-x1, y2-y1);
+						var distanceB = Math.hypot(x3-x2, y3-y2);
+						var distanceC = Math.hypot(x4-x3, y4-y3);
+						var distanceD = Math.hypot(x5-x4, y5-y4);
+						
+						var shapeType = 'Square';
+						var area = distanceA * distanceB;
+						var stringForEncode = [(x2, y2), (x3, y3), (x4, y4), (x5, y5)];
+						var encodedString = btoa(stringForEncode);
+						var url = 'https://warm-thicket-98293.herokuapp.com/square?area=<'+area+'>;&points=<'+encodedString+'>';
+						httpGet(url);
+						
+						alert('Squared thoughts: ' + area);
 						return false
 					}
 				}
@@ -65,9 +132,7 @@
 						var x2 = savedPageClicks[i][0];
 						var y2 = savedPageClicks[i][1];
 						
-						var a = x1 - x2;
-						var b = y1 - y2;
-						var c = Math.sqrt( a*a + b*b );
+						var c = Math.hypot(x2-x1, y2-y1);
 						
 						distance.push({
 							'd': c,
@@ -78,20 +143,25 @@
 				//Sum distances 	
 				distance.forEach(function(item){
 				    distanceSum += item.d;
-				})
+				});
 				
-				console.log('total distance', distanceSum);
-				console.log('Random Shape');
+				var shapeType = 'Random shape';
+				
+				alert('Random Shape');
+				var RSresult = 'Total distance ' + distanceSum; 
+				document.getElementById("response").value = RSresult;
+				console.log('Total Clicks = ' + countClicks);
 			}
 			
-			//Set canvas height and width to 100%
-			function resizeCanvas() {
-				var canvas = document.getElementById('canvas');
-				var ctx = canvas.getContext('2d');
-				ctx.canvas.width  = window.innerWidth;
-				ctx.canvas.height = window.innerHeight;
+			//Send HTTP request
+			function httpGet(url){
+			    var xmlHttp = new XMLHttpRequest();
+			    xmlHttp.open( "GET", url, false ); // false for synchronous request
+			    xmlHttp.send( null );
+			    document.getElementById("response").value = xmlHttp.responseText;
 			}
-			
+
+			//Events Listener
 			document.body.addEventListener("click", clickBody)
 			document.body.addEventListener('contextmenu', clickBody);
 			window.addEventListener("load", resizeCanvas);
