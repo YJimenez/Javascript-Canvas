@@ -173,7 +173,7 @@
 		</script>
 		
 		<span id='countClicks'/></span>
-		<canvas id="canvas" width="500" height="500"></canvas> 
+		<canvas id="canvas"></canvas> 
 		<input type='text' id='response' disabled/>	
 		<button id="submitButton" onClick=submitEvent();>Submit</button>
 		
@@ -183,6 +183,7 @@
 			var savedPageClicks = [];
 			
 			document.getElementById('canvas').addEventListener('click', drawLine, false);
+			document.getElementById('canvas').addEventListener('contextmenu', drawLine, false);
 			
 			//Drag line point to point
 			function drawLine(e) {
