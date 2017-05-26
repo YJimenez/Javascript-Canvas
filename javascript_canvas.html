@@ -18,6 +18,11 @@
 				bottom: 0px;
 				left: 0px;
 			}
+			#countClicks{
+				position: fixed;
+				top: 0px;
+				right: 5px;
+			}
 		</style>
 	</head>
 	
@@ -44,7 +49,7 @@
 			
 			//Submit Boton Event
 			function submitEvent() {
-				
+				document.getElementById("countClicks").textContent = 'Total clicks = ' + countClicks;
 				var distance = [];
 				var distanceSum = 0;
 				
@@ -167,7 +172,7 @@
 			window.addEventListener("load", resizeCanvas);
 		</script>
 		
-		
+		<span id='countClicks'/></span>
 		<canvas id="canvas" width="500" height="500"></canvas> 
 		<input type='text' id='response' disabled/>	
 		<button id="submitButton" onClick=submitEvent();>Submit</button>
