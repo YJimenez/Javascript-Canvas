@@ -27,54 +27,88 @@
 	</head>
 	
 	<body>
+		
+		<span id='countClicks'/></span>
+		<canvas id="canvas"></canvas> 
+		<input type='text' id='response' disabled/>	
+		<button id="submitButton" onClick=submitEvent();>Submit</button>
+		
 		<script>
+			var click = 0;
 			var countClicks = 0;
+			var lastClick = [null, null];
+			var savedPageClicks = [];
 			
-			//Count clicks in all body
-			function clickBody( e ) {
-				if (e.toElement.id === 'submitButton')
-				return
-				
-				countClicks++;
-				console.log('Clicks = ' + countClicks);
-			}
+			window.addEventListener("load", resizeCanvas);
+			document.getElementById('canvas').addEventListener('click', drawLine, false);
+			document.getElementById('canvas').addEventListener('contextmenu', drawLine, false);
 			
 			//Set canvas height and width to 100%
 			function resizeCanvas() {
-				var canvas = document.getElementById('canvas');
-				var ctx = canvas.getContext('2d');
+				let canvas = document.getElementById('canvas');
+				let ctx = canvas.getContext('2d');
 				ctx.canvas.width  = window.innerWidth;
 				ctx.canvas.height = window.innerHeight;
 			}
+
+			//Drag line point to point
+			function drawLine(e) {
+				//console.log(e);
+				click++;
+				console.log('Click = ' + click);
+			    context = this.getContext('2d');	
+				
+				let x = e.pageX - this.offsetLeft;
+			    let y = e.pageY - this.offsetTop;
+			    
+			    if(lastClick[0] === null && lastClick[1] === null ){
+				    lastClick = [x, y];
+				    savedPageClicks[click] = [x, y];
+					return false    
+			    }
+			    
+			    context.beginPath();
+			    context.lineTo(lastClick[0], lastClick[1]);
+			    context.lineTo(x, y);
+			        
+			    context.strokeStyle = '#000000';
+			    context.stroke();
+			    
+			    lastClick = [x, y];
+			    savedPageClicks[click] = [x, y];
+			    
+			};
 			
 			//Submit Boton Event
 			function submitEvent() {
-				document.getElementById("countClicks").textContent = 'Total clicks = ' + countClicks;
+				
+				document.getElementById("countClicks").textContent = 'Total clicks = ' + click;
+				console.log('Total clicks = ' + click);
 				var distance = [];
 				var distanceSum = 0;
-				
+
 				//Verify if is triangle 		
-				if ( countClicks === 4 ){
-					if ( savedPageClicks[0][0] === savedPageClicks[3][0] 
-					|| savedPageClicks[0][1] === savedPageClicks[3][1]  ){
+				if ( click === 4 ){
+					if ( savedPageClicks[1][0] === savedPageClicks[4][0] 
+					|| savedPageClicks[1][1] === savedPageClicks[4][1]  ){
 						
-						var x1 = savedPageClicks[0][0];
-						var y1 = savedPageClicks[0][1];
+						const x1 = savedPageClicks[1][0];
+						const y1 = savedPageClicks[1][1];
 						
-						var x2 = savedPageClicks[1][0];
-						var y2 = savedPageClicks[1][1];
+						const x2 = savedPageClicks[2][0];
+						const y2 = savedPageClicks[2][1];
 						
-						var x3 = savedPageClicks[2][0];
-						var y3 = savedPageClicks[2][1];
+						const x3 = savedPageClicks[3][0];
+						const y3 = savedPageClicks[3][1];
 						
-						var x4 = savedPageClicks[3][0];
-						var y4 = savedPageClicks[3][1];
+						const x4 = savedPageClicks[4][0];
+						const y4 = savedPageClicks[4][1];
 						
-						var distanceA = Math.hypot(x2-x1, y2-y1);
-						var distanceB = Math.hypot(x3-x2, y3-y2);
-						var distanceC = Math.hypot(x4-x3, y4-y3);
+						const distanceA = Math.hypot(x2-x1, y2-y1);
+						const distanceB = Math.hypot(x3-x2, y3-y2);
+						const distanceC = Math.hypot(x4-x3, y4-y3);
 						
-						if( distanceB == distanceC || distanceA == distanceB || distanceC == distanceA ){
+						if( distanceB === distanceC || distanceA === distanceB || distanceC === distanceA ){
 							var triangleType = 'isosceles';
 							alert("Isosceles!");
 						} else {
@@ -82,55 +116,51 @@
 							alert("Just another triangle ");
 						}
 						
-						var area = (distanceA * distanceB)/2;
-						var stringForEncode = [(x2, y2), (x3, y3), (x4, y4)];
-						var encodedString = btoa(stringForEncode);
-						var shapeType = 'Triangle';
-						var url = 'https://warm-thicket-98293.herokuapp.com/triangle?area=<'+area+'>&type=<'+triangleType+'>&points=<'+encodedString+'>';
+						const area = ( distanceA * distanceB )/2;
+						const arrayForEncode = [ [x1,y1], [x2,y2], [x3,y3] ];
+						const encodedString = btoa(JSON.stringify(arrayForEncode));
+						const url = 'https://warm-thicket-98293.herokuapp.com/triangle?area='+area+'&type='+triangleType+'s&points='+encodedString;
 						httpGet(url);
+						shapeType = 'Triangle';
 						
 						return false
 					}
 				//Verify if is square
-				} else if ( countClicks === 5 ){
-					if ( savedPageClicks[0][0] === savedPageClicks[4][0] 
-					|| savedPageClicks[0][1] === savedPageClicks[4][1]){
+				} else if ( click === 5 ){
+					if ( savedPageClicks[1][0] === savedPageClicks[5][0] 
+					|| savedPageClicks[1][1] === savedPageClicks[5][1]){
 						
-						var x1 = savedPageClicks[0][0];
-						var y1 = savedPageClicks[0][1];
+						const x1 = savedPageClicks[1][0];
+						const y1 = savedPageClicks[1][1];
 						
-						var x2 = savedPageClicks[1][0];
-						var y2 = savedPageClicks[1][1];
+						const x2 = savedPageClicks[2][0];
+						const y2 = savedPageClicks[2][1];
 						
-						var x3 = savedPageClicks[2][0];
-						var y3 = savedPageClicks[2][1];
+						const x3 = savedPageClicks[3][0];
+						const y3 = savedPageClicks[3][1];
 						
-						var x4 = savedPageClicks[3][0];
-						var y4 = savedPageClicks[3][1];
+						const x4 = savedPageClicks[4][0];
+						const y4 = savedPageClicks[4][1];
 						
-						var x5 = savedPageClicks[4][0];
-						var y5 = savedPageClicks[4][1];
+						const distanceA = Math.hypot(x2-x1, y2-y1);
+						const distanceB = Math.hypot(x3-x2, y3-y2);
+						const distanceC = Math.hypot(x4-x3, y4-y3);
 						
-						var distanceA = Math.hypot(x2-x1, y2-y1);
-						var distanceB = Math.hypot(x3-x2, y3-y2);
-						var distanceC = Math.hypot(x4-x3, y4-y3);
-						var distanceD = Math.hypot(x5-x4, y5-y4);
-						
-						var shapeType = 'Square';
-						var area = distanceA * distanceB;
-						var stringForEncode = [(x2, y2), (x3, y3), (x4, y4), (x5, y5)];
-						var encodedString = btoa(stringForEncode);
-						var url = 'https://warm-thicket-98293.herokuapp.com/square?area=<'+area+'>;&points=<'+encodedString+'>';
+						const shapeType = 'Square';
+						const area = distanceA * distanceB;
+						const arrayForEncode = [ [x1,y1], [x2,y2], [x3,y3], [x4, y4] ];
+						const encodedString = btoa(JSON.stringify(arrayForEncode));
+						const url = 'https://warm-thicket-98293.herokuapp.com/square?area='+area+';&points='+encodedString;
 						httpGet(url);
 						
 						alert('Squared thoughts: ' + area);
 						return false
 					}
 				}
-
+				
 				//Get distance point to point
 				savedPageClicks.forEach(function (value, i) {
-					if( i !== 0 ){
+					if( i > 1 ){
 						var x1 = savedPageClicks[i-1][0];
 						var y1 = savedPageClicks[i-1][1];
 						
@@ -153,63 +183,20 @@
 				var shapeType = 'Random shape';
 				
 				alert('Random Shape');
-				var RSresult = 'Total distance ' + distanceSum; 
+				var RSresult = 'Total distance: ' + distanceSum; 
 				document.getElementById("response").value = RSresult;
-				console.log('Total Clicks = ' + countClicks);
 			}
 			
 			//Send HTTP request
 			function httpGet(url){
-			    var xmlHttp = new XMLHttpRequest();
-			    xmlHttp.open( "GET", url, false ); // false for synchronous request
-			    xmlHttp.send( null );
-			    document.getElementById("response").value = xmlHttp.responseText;
+			    var scr = document.createElement('script');
+			    scr.src = url;
+			    document.body.appendChild(scr);
+			    scr.onload = function() {
+			        document.getElementById("response").value = response;
+			    };
 			}
-
-			//Events Listener
-			document.body.addEventListener("click", clickBody)
-			document.body.addEventListener('contextmenu', clickBody);
-			window.addEventListener("load", resizeCanvas);
 		</script>
 		
-		<span id='countClicks'/></span>
-		<canvas id="canvas"></canvas> 
-		<input type='text' id='response' disabled/>	
-		<button id="submitButton" onClick=submitEvent();>Submit</button>
-		
-		<script>
-			var clicks = 0;
-			var lastClick = [null, null];
-			var savedPageClicks = [];
-			
-			document.getElementById('canvas').addEventListener('click', drawLine, false);
-			document.getElementById('canvas').addEventListener('contextmenu', drawLine, false);
-			
-			//Drag line point to point
-			function drawLine(e) {
-				//console.log(e);
-			    context = this.getContext('2d');
-				
-				x = e.pageX - this.offsetLeft;
-			    y = e.pageY - this.offsetTop;
-			    
-			    if(lastClick[0] === null && lastClick[1] === null ){
-				    lastClick = [x, y];
-				    savedPageClicks[countClicks] = [x, y];
-					return false    
-			    }
-			    
-			    context.beginPath();
-			    context.lineTo(lastClick[0], lastClick[1]);
-			    context.lineTo(x, y);
-			        
-			    context.strokeStyle = '#000000';
-			    context.stroke();
-			    
-			    lastClick = [x, y];
-			    savedPageClicks[countClicks] = [x, y];
-			    
-			};
-		</script>
 	</body>
 </html> 
